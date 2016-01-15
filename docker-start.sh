@@ -1,31 +1,25 @@
 #!/bin/bash
-/etc/init.d/mysql start
-cd /opt/staytus
 
-# Configure DB with random password, if not already configured
-if [ ! -f /opt/staytus/persisted/config/database.yml ]; then
-  export RANDOM_PASSWORD=`openssl rand -base64 32`
+DB_ADAPTER="${DB_ADAPTER:-mysql2}"
+DB_POOL="${DB_POOL:-5}"
+DB_HOST="${DB_HOST:-127.0.0.1}"
+DB_USER="${DB_USER:-staytus}"
+DB_PASSWORD="${DB_PASSWORD:-staytus}"
+DB_DATABASE="${DB_DATABASE:-staytus}"
 
-  mysqladmin -u root -ptemp-password password $RANDOM_PASSWORD
-  echo "CREATE DATABASE staytus CHARSET utf8 COLLATE utf8_unicode_ci" | mysql -u root -p$RANDOM_PASSWORD
+cp -f /opt/staytus/config/database.example.yml /opt/staytus/config/database.yml
 
-  cp config/database.example.yml config/database.yml
-  sed -i "s/username:.*/username: root/" config/database.yml
-  sed -i "s|password:.*|password: $RANDOM_PASSWORD|" config/database.yml
+echo "CREATE DATABASE staytus CHARSET utf8 COLLATE utf8_unicode_ci;" | mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASSWORD" || true
 
-  # Copy the config to persist it, and later copy back on each start, to persist this config file 
-  # without persisting all of /config (which is mostly app code)
-  mkdir /opt/staytus/persisted/config
-  cp config/database.yml /opt/staytus/persisted/config/database.yml
+sed -i "s/adapter:.*/adapter: \"$DB_ADAPTER\"/" /opt/staytus/config/database.yml
+sed -i "s|pool:.*|pool: $DB_POOL|" /opt/staytus/config/database.yml
+sed -i "s|host:.*|host: \"$DB_HOST\"|" /opt/staytus/config/database.yml
+sed -i "s/username:.*/username: \"$DB_USER\"/" /opt/staytus/config/database.yml
+sed -i "s|password:.*|password: \"$DB_PASSWORD\"|" /opt/staytus/config/database.yml
+sed -i "s|database:.*|database: $DB_DATABASE|" /opt/staytus/config/database.yml
 
-  bundle exec rake staytus:build staytus:install
-else
-  # Use the previously saved config from the persisted volume
-  cp /opt/staytus/persisted/config/database.yml config/database.yml
-  # TODO also copy themes back and forth too
+cd /opt/staytus || exit 1
 
-  # If already configured, check if there are any migrations to run
-  bundle exec rake staytus:build staytus:upgrade
-fi
+bundle exec rake staytus:build staytus:upgrade
 
-bundle exec foreman start
+exec bundle exec foreman start
