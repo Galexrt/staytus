@@ -1,0 +1,18 @@
+database:
+  image: "sameersbn/mysql:latest"
+  environment:
+    DB_USER: staytus
+    DB_PASS: staytus
+    DB_NAME: staytus
+  volumes:
+    - "/opt/docker/staytus/mysql:/var/lib/mysql"
+staytus:
+  image: "galexrt/staytus:latest"
+  links:
+    - "database:database"
+  environment:
+    DB_HOST: database
+    DB_PASSWORD: staytus
+#   STAYTUS_SMTP_HOSTNAME: SMTP_SERVER_ADDRESS
+#   STAYTUS_SMTP_USERNAME: SMTP_USERNAME
+#   STAYTUS_SMTP_PASSWORD: SMTP_USER_PASSWORD
