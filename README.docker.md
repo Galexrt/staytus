@@ -15,9 +15,8 @@ any organization with customers that rely on them to be online 24/7.
 ## Setup with Docker
 
 1. [Install Docker locally](https://docs.docker.com/installation/)
-2. [Install docker-compose locally](https://docs.docker.com/installation/)
-3. Now run `docker-compose -d up`, to start Staytus with the database container (You have to be in the directory of your Staytus `docker-compose.yml` for this).
-4. Go to [http://localhost:80](http://localhost:80) and follow the instructions to configure Staytus
+2. [Install docker-compose](https://docs.docker.com/compose/install/)
+3. Run `curl https://github.com/adamcooke/staytus/blob/master/docker-compose.yml | docker-compose -f - up -d`
 
 This will pull and start the latest published Staytus Docker image and the database image, and start it listening on port 80 on the host machine.
 
