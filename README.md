@@ -66,6 +66,10 @@ processes which you have running.
 
 See our [Docker README](README.docker.md).
 
+## E-Mail Notifications
+
+All e-mail notifications are sent through a background worker process. This will be started automatically when you run the application using `foreman start`. If you don't do this, you can run jobs using `bundle exec rake jobs:work`.
+
 ## Administration
 
 To log in for the first time, visit the `/admin`, and log in with email
